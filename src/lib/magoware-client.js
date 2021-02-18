@@ -168,8 +168,7 @@ export default class MagowareClient {
         .slice(0, url.lastIndexOf('/') + 1)
         .replace(/((\?|#).*)?$/, '');
 
-      form.append('filename', fileName);
-      form.append('file', image);
+      form.append('file', image, fileName);
 
       const request = got.post(
         `${this.hostname}/file-upload/single-file/vod/${type}`,
@@ -185,9 +184,9 @@ export default class MagowareClient {
 
       try {
         const response = await request;
-        return response.result;
+        return response.body.result;
       } catch {
-        // Swallow error
+        // swallow error
       }
     }
 
