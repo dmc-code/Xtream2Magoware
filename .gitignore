@@ -133,3 +133,5 @@ Temporary Items
 .apdisk
 
 anon.sh
+config/redis.conf
+data/redis

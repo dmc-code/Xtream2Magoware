@@ -8,8 +8,10 @@ function connectToRedis() {
   let client = null;
   try {
     client = new Redis({
+      host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
-      password: process.env.REDIS_PASS
+      password: process.env.REDIS_PASS,
+      db: process.env.REDIS_DATABASE
     });
 
     client.on('connect', () => {
