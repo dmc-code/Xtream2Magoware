@@ -124,10 +124,10 @@ function normalizeTmdb(source, categoryId = 1) {
     tagline: source.tagline || '',
     homepage: source.homepage || 'N/A',
     icon_url: source.icon_url
-      ? 'https://image.tmdb.org/t/p/original' + source.icon_url
+      ? 'https://image.tmdb.org/t/p/w780' + source.icon_url
       : '',
     image_url: source.image_url
-      ? 'https://image.tmdb.org/t/p/original' + source.image_url
+      ? 'https://image.tmdb.org/t/p/w1280' + source.image_url
       : '',
     rate: source.vote_average || 1,
     vote_average: source.vote_average || 5,
