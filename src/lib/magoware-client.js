@@ -165,7 +165,7 @@ export default class MagowareClient {
     if (image) {
       const form = new FormData();
       const fileName = url
-        .slice(0, url.lastIndexOf('/') + 1)
+        .split(url.slice(0, url.lastIndexOf('/') + 1))[1]
         .replace(/((\?|#).*)?$/, '');
 
       form.append('file', image, fileName);
