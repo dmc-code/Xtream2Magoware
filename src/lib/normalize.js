@@ -66,7 +66,7 @@ function normalizeDirector(director) {
       .join(', ');
   }
 
-  return cleanString;
+  return cleanString.slice(0, 100);
 }
 
 function normalizeCast(cast) {
@@ -89,7 +89,7 @@ function normalizeCast(cast) {
       .join(', ');
   }
 
-  return cleanString;
+  return cleanString.slice(0, 999);
 }
 
 function normalizeImdb(source, categoryId = 1) {
@@ -123,11 +123,11 @@ function normalizeTmdb(source, categoryId = 1) {
     description: source.description ? source.description.slice(0, 990) : '',
     tagline: source.tagline || '',
     homepage: source.homepage || 'N/A',
-    icon_url: source.poster_path
-      ? 'https://image.tmdb.org/t/p/original' + source.poster_path
+    icon_url: source.icon_url
+      ? 'https://image.tmdb.org/t/p/original' + source.icon_url
       : '',
-    image_url: source.backdrop_path
-      ? 'https://image.tmdb.org/t/p/original' + source.backdrop_path
+    image_url: source.image_url
+      ? 'https://image.tmdb.org/t/p/original' + source.image_url
       : '',
     rate: source.vote_average || 1,
     vote_average: source.vote_average || 5,
