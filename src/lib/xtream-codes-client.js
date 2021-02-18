@@ -95,9 +95,10 @@ export default class XtreamCodesClient {
     const response = await this.sendRequest(`get_${type}_streams`, parameters);
     const data = camelcaseKeys(response);
 
-    for (let i = 0; i < data.length; i++) {
-      this.streams.push(data[i]);
+    for (const stream of data) {
+      this.streams.push(stream);
     }
+
     this.log(`get_${type}`, data);
     return data;
   }

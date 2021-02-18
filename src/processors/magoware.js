@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint max-params: ["error", 5] */
 
 import Bottleneck from 'bottleneck';
 import ora from 'ora';

@@ -64,8 +64,8 @@ export default class Provider {
   }
 
   async getMovies() {
-    let numberOfCategories = 0;
-    let numberOfMovies = 0;
+    const numberOfCategories = 0;
+    const numberOfMovies = 0;
 
     return {
       numberOfCategories,
@@ -74,10 +74,10 @@ export default class Provider {
   }
 
   async getTV() {
-    let numberOfShows = 0;
-    let numberOfSeasons = 0;
-    let numberOfEpisodes = 0;
-    let numberOfCategories = 0;
+    const numberOfShows = 0;
+    const numberOfSeasons = 0;
+    const numberOfEpisodes = 0;
+    const numberOfCategories = 0;
 
     return {
       numberOfShows,

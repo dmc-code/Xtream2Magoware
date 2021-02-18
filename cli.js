@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint import/no-unassigned-import: 0 */
+
 import {} from 'dotenv/config.js';
 import meow from 'meow';
 import App from './src/index.js';
@@ -7,7 +9,6 @@ import Logger from './src/lib/logging.js';
 import gradient from 'gradient-string';
 
 const logger = new Logger();
-process.stdout.write('\u0007');
 
 const cli = meow(
   `

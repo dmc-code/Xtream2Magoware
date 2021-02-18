@@ -1,11 +1,12 @@
 import test from "ava";
 import execa from "execa";
 
-test("main", async (t) => {
+test("outputs help", async (t) => {
   const { stdout } = await execa("./cli.js", ["--help"]);
-  t.is(
-    stdout,
-    `
+
+  t.is(stdout, `
+  Tool to sync xtream codes content to a magoware instance
+
   This module will connect to an xtream codes instance and create a local copy of it's content.
   This local copy will be processed to import each Movie and TV Episode into magoware, setting up categories as needed.
 
