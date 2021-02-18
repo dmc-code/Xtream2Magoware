@@ -456,86 +456,106 @@ export default class MagowareProcessor extends Processor {
     const barString = ':bar :current/:total :percent ETA: :eta';
 
     if (!this.unattended) {
-      this.categoryBar = new ProgressBar(
-        `${barString} | ${chalk.dim('Importing categories to magoware')}`,
-        {
-          ...barDefaults,
-          total: categoryKeys.length
-        }
-      );
+      if (categoryKeys.length > 0) {
+        this.categoryBar = new ProgressBar(
+          `${barString} | ${chalk.dim('Importing categories to magoware')}`,
+          {
+            ...barDefaults,
+            total: categoryKeys.length
+          }
+        );
+      }
 
-      this.movieBar = new ProgressBar(
-        `${barString} | ${chalk.dim('Importing movies to magoware')}`,
-        {
-          ...barDefaults,
-          total: movieKeys.length
-        }
-      );
+      if (movieKeys.length > 0) {
+        this.movieBar = new ProgressBar(
+          `${barString} | ${chalk.dim('Importing movies to magoware')}`,
+          {
+            ...barDefaults,
+            total: movieKeys.length
+          }
+        );
+      }
 
-      this.showBar = new ProgressBar(
-        `${barString} | ${chalk.dim('Importing tv shows to magoware')}`,
-        {
-          ...barDefaults,
-          total: showKeys.length
-        }
-      );
+      if (showKeys.length > 0) {
+        this.showBar = new ProgressBar(
+          `${barString} | ${chalk.dim('Importing tv shows to magoware')}`,
+          {
+            ...barDefaults,
+            total: showKeys.length
+          }
+        );
+      }
 
-      this.seasonBar = new ProgressBar(
-        `${barString} | ${chalk.dim('Importing tv seasons to magoware')}`,
-        {
-          ...barDefaults,
-          total: seasonKeys.length
-        }
-      );
+      if (seasonKeys.length > 0) {
+        this.seasonBar = new ProgressBar(
+          `${barString} | ${chalk.dim('Importing tv seasons to magoware')}`,
+          {
+            ...barDefaults,
+            total: seasonKeys.length
+          }
+        );
+      }
 
-      this.episodeBar = new ProgressBar(
-        `${barString} | ${chalk.dim('Importing tv episodes to magoware')}`,
-        {
-          ...barDefaults,
-          total: episodeKeys.length
-        }
-      );
+      if (episodeKeys.length > 0) {
+        this.episodeBar = new ProgressBar(
+          `${barString} | ${chalk.dim('Importing tv episodes to magoware')}`,
+          {
+            ...barDefaults,
+            total: episodeKeys.length
+          }
+        );
+      }
     }
 
-    const categoryProcessing = categoryKeys.map((key) => {
-      return this.categoryLimiter
-        .schedule(this.processCategory.bind(this, key))
-        .catch(this.jobErrorHandlers);
-    });
+    if (categoryKeys.length > 0) {
+      const categoryProcessing = categoryKeys.map((key) => {
+        return this.categoryLimiter
+          .schedule(this.processCategory.bind(this, key))
+          .catch(this.jobErrorHandlers);
+      });
 
-    await Promise.allSettled(categoryProcessing);
+      await Promise.allSettled(categoryProcessing);
+    }
 
-    const movieProcessing = movieKeys.map((key) => {
-      return this.movieLimiter
-        .schedule(this.processMovie.bind(this, key))
-        .catch(this.jobErrorHandlers);
-    });
+    if (movieKeys.length > 0) {
+      const movieProcessing = movieKeys.map((key) => {
+        return this.movieLimiter
+          .schedule(this.processMovie.bind(this, key))
+          .catch(this.jobErrorHandlers);
+      });
 
-    await Promise.allSettled(movieProcessing);
+      await Promise.allSettled(movieProcessing);
+    }
 
-    const showProcessing = showKeys.map((key) => {
-      return this.movieLimiter
-        .schedule(this.processShow.bind(this, key))
-        .catch(this.jobErrorHandlers);
-    });
+    if (showKeys.length > 0) {
+      const showProcessing = showKeys.map((key) => {
+        return this.movieLimiter
+          .schedule(this.processShow.bind(this, key))
+          .catch(this.jobErrorHandlers);
+      });
 
-    await Promise.allSettled(showProcessing);
+      await Promise.allSettled(showProcessing);
+    }
 
-    const seasonProcessing = seasonKeys.map((key) => {
-      return this.movieLimiter
-        .schedule(this.processSeason.bind(this, key))
-        .catch(this.jobErrorHandlers);
-    });
+    if (seasonKeys.length > 0) {
+      const seasonProcessing = seasonKeys.map((key) => {
+        return this.movieLimiter
+          .schedule(this.processSeason.bind(this, key))
+          .catch(this.jobErrorHandlers);
+      });
 
-    await Promise.allSettled(seasonProcessing);
+      await Promise.allSettled(seasonProcessing);
+    }
 
-    const episodeProcessing = episodeKeys.map((key) => {
-      return this.episodeLimiter
-        .schedule(this.processEpisode.bind(this, key))
-        .catch(this.jobErrorHandlers);
-    });
+    if (episodeKeys.length > 0) {
+      const episodeProcessing = episodeKeys.map((key) => {
+        return this.episodeLimiter
+          .schedule(this.processEpisode.bind(this, key))
+          .catch(this.jobErrorHandlers);
+      });
 
-    await Promise.allSettled(episodeProcessing);
+      await Promise.allSettled(episodeProcessing);
+    }
   }
 
   async process() {
