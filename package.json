@@ -1,0 +1,55 @@
+{
+	"name": "xtream-to-magoware",
+	"version": "0.0.0",
+	"description": "Tool to sync xtream codes content to a magoware instance",
+	"license": "MIT",
+	"author": {
+		"name": "DMC Dev"
+	},
+	"type": "module",
+	"bin": {
+		"xtream-to-magoware": "cli.js"
+	},
+	"engines": {
+		"node": ">=14"
+	},
+	"scripts": {
+		"test": "xo && ava"
+	},
+	"files": [
+		"cli.js"
+	],
+	"keywords": [
+		"cli",
+		"cli-app",
+		"unicorn",
+		"fun"
+	],
+	"dependencies": {
+		"bottleneck": "^2.19.5",
+		"camelcase-keys": "^6.2.2",
+		"chalk": "^2.4.2",
+		"dotenv": "^8.2.0",
+		"form-data": "^4.0.0",
+		"got": "^11.8.1",
+		"gradient-string": "^1.2.0",
+		"imdb-scrapper": "git://github.com/dmc-ez/imdb-scrapper.git#permisive-search-movie",
+		"ioredis": "^4.22.0",
+		"meow": "^9.0.0",
+		"ora": "^5.3.0",
+		"progress": "git://github.com/JiPaix/node-progress.git",
+		"prompts": "^2.4.0",
+		"string-similarity": "^4.0.4"
+	},
+	"devDependencies": {
+		"ava": "^3.15.0",
+		"execa": "^5.0.0",
+		"xo": "^0.37.0"
+	},
+	"xo": {
+		"prettier": true
+	},
+	"volta": {
+		"node": "15.8.0"
+	}
+}
