@@ -177,6 +177,7 @@ export default class MagowareClient {
           ...this.gotDefaults,
           body: form,
           headers: {
+            Authorization: this.token,
             'content-type': `multipart/form-data; boundary=${form.getBoundary()}`
           }
         }
