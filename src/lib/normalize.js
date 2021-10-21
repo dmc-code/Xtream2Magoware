@@ -116,7 +116,7 @@ function normalizeXtream(source, categoryId = 1) {
     image_url: movie.coverBig || '',
     rate: movie.rating || 1,
     vote_average: movie.rating || 5,
-    duration: movie.durationSecs || 0,
+    duration: movie.durationSecs / 60 || 0,
     director: normalizeDirector(movie.director),
     starring: normalizeCast(movie.cast),
     release_date: new Date(movie.releasedate),

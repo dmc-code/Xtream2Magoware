@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /* eslint import/no-unassigned-import: 0 */
 
-import {} from 'dotenv/config.js';
+import dotenv from 'dotenv';
+dotenv.config();
 import meow from 'meow';
 import App from './src/index.js';
 import redisClient from './src/lib/redis-client.js';
