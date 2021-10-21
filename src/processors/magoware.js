@@ -7,6 +7,7 @@ import chalk from 'chalk';
 import ProgressBar from 'progress';
 import Processor from './processor.js';
 import MagowareClient from '../lib/magoware-client.js';
+import XtreamClient from '../lib/xtream-codes-client.js';
 import Logger from '../lib/logging.js';
 import IMDB from '../lib/imdb.js';
 import {
@@ -24,10 +25,19 @@ const progressMock = { tick: () => {}, interrupt: console.log };
 const IntlFormatter = new Intl.NumberFormat('en-US');
 
 export default class MagowareProcessor extends Processor {
-  constructor(redis, authentication, unattended) {
+  constructor(redis, authentication, xtream, unattended) {
     const client = new MagowareClient(authentication);
-
     super(redis, client);
+
+    this.xtreamClient = new XtreamClient({
+      baseUrl: xtream.url,
+      auth: {
+        username: xtream.user,
+        password: xtream.password
+      },
+      debug: false
+    });
+
     this.unattended = unattended;
     this.categoryBar = progressMock;
     this.movieBar = progressMock;
@@ -37,6 +47,11 @@ export default class MagowareProcessor extends Processor {
 
     this.movieLimiter = new Bottleneck({
       maxConcurrent: 20
+    });
+
+    this.xtreamLimiter = new Bottleneck({
+      maxConcurrent: 1,
+      minTime: 3000
     });
 
     this.categoryLimiter = new Bottleneck({
@@ -105,26 +120,62 @@ export default class MagowareProcessor extends Processor {
     try {
       response = await this.client.searchTMDB(name);
     } catch (error) {
-      logger.error('tmdb error');
-      console.log(error);
+      logger.error('tmdb error', error);
     }
 
     return response;
   }
 
-  async findMovie(name, categoryId) {
+  async searchXtream(id) {
+    let response = null;
     try {
-      let movie = await this.searchTmdb(name);
+      response = await this.xtreamLimiter.schedule(() =>
+        this.xtreamClient.getVodInfo(id)
+      );
+
+      if (
+        typeof response?.info?.tmdbId === 'undefined' ||
+        typeof response?.info?.name === 'undefined' ||
+        typeof response?.info?.description === 'undefined'
+      ) {
+        return null;
+      }
+    } catch (error) {
+      logger.error('xtream vod info error', error);
+    }
+
+    return response;
+  }
+
+  async findMovie(name, xtream, categoryId) {
+    try {
+      let movie;
+
+      logger.info(`Searching Xtream for: ${name}`, this.movieBar);
+      movie = await this.searchXtream(xtream.streamId);
 
       if (!movie) {
-        movie = await IMDB.findMovie(name);
+        logger.info(
+          `Data not in Xtream. Searching TMDB for: ${name}`,
+          this.movieBar
+        );
+        movie = await this.searchTmdb(name);
+
+        if (!movie) {
+          logger.info(
+            `Data not in TMDB. Searching IMDB for: ${name}`,
+            this.movieBar
+          );
+          movie = await IMDB.findMovie(name);
+        }
       }
 
       if (movie) movie = normalizeMovieInformation(movie, categoryId);
 
       return movie;
-    } catch {
-      logger.error(`find movie error for ${name}`);
+    } catch (error) {
+      logger.error(`find movie error for ${name}`, this.movieBar);
+      console.log(error);
     }
   }
 
@@ -189,7 +240,8 @@ export default class MagowareProcessor extends Processor {
 
     // Use cached movieInformation or go find movie details
     const movieInformation =
-      movie.movieInformation || (await this.findMovie(movie.name, categoryId));
+      movie.movieInformation ||
+      (await this.findMovie(movie.name, movie.xtream, categoryId));
 
     // Skip import if we can't find any movie details
     if (!movieInformation) {

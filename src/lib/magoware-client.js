@@ -66,12 +66,6 @@ export default class MagowareClient {
   async searchTMDB(title, series = false) {
     if (!this.tokenGuard()) return;
 
-    let debug = false;
-    if (title === 'Merry Christmas Mr. Bean') {
-      debug = true;
-    }
-
-    if (debug) console.log('mr bean debug');
     let match = null;
     try {
       const url = series
@@ -417,7 +411,7 @@ export default class MagowareClient {
       ) {
         throw new AlreadyExistsError(movie.title);
       } else {
-        console.log('importing vod failed', movie);
+        // console.log('importing vod failed', movie);
       }
 
       throw error;

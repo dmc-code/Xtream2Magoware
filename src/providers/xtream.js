@@ -19,6 +19,7 @@ function tidyName(string) {
     .replace(/ \(\d{4}\)$/g, '')
     .replace(/ - \d{4}$/g, '')
     .replace(/ -/g, '')
+    .replace(/\\/g, '')
     .trim();
 }
 
@@ -38,6 +39,7 @@ export default class XtreamProvider extends Provider {
       debug: false
     });
     super(redis, client);
+    this.authorization = authorization;
     this.unattended = unattended;
   }
 
@@ -48,7 +50,7 @@ export default class XtreamProvider extends Provider {
     } catch (error) {
       logger.error(
         chalk.bold(
-          'Could not log into Xtream Codes using the provided credentials'
+          `Could not log into Xtream Codes using the provided credentials: ${this.authorization.url}, ${this.authorization.user}, ${this.authorization.password}`
         )
       );
       logger.error(

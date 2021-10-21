@@ -33,7 +33,7 @@
 		"form-data": "^4.0.0",
 		"got": "^11.8.1",
 		"gradient-string": "^1.2.0",
-		"imdb-scrapper": "git://github.com/dmc-ez/imdb-scrapper.git#permisive-search-movie",
+		"imdb-scraper": "github:evoactivity/node-imdb-scraper",
 		"ioredis": "^4.22.0",
 		"meow": "^9.0.0",
 		"ora": "^5.3.0",

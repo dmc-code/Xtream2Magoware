@@ -1,9 +1,20 @@
 /* eslint-disable camelcase */
 
 function isImdb(source) {
-  if (source.id && typeof source.id === 'string') {
-    return source.id.startsWith('tt');
+  if (source.imdbID && typeof source.imdbID === 'string') {
+    return source.imdbID.startsWith('tt');
   }
+  return false;
+}
+
+function isXtream(source) {
+  if (
+    source?.movieData?.streamId &&
+    typeof source?.movieData?.streamId === 'number'
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function timeToSeconds(time) {
@@ -60,7 +71,7 @@ function normalizeDirector(director) {
 
   if (Array.isArray(director) && director[0].length > 0) {
     cleanString = director
-      .slice(0, 2)
+      .slice(0, 3)
       .map((name) => name.trim())
       .filter((name) => name !== '')
       .join(', ');
@@ -92,23 +103,44 @@ function normalizeCast(cast) {
   return cleanString.slice(0, 999);
 }
 
+function normalizeXtream(source, categoryId = 1) {
+  const movie = source.info;
+  return {
+    ...defaultMovieTemplate,
+    id: movie.tmdbId,
+    imdb_id: movie.tmdbId || '',
+    title: movie.name || '',
+    original_title: movie.oName || '',
+    description: movie.description ? movie.description.slice(0, 990) : '',
+    icon_url: movie.movieImage || '',
+    image_url: movie.coverBig || '',
+    rate: movie.rating || 1,
+    vote_average: movie.rating || 5,
+    duration: movie.durationSecs || 0,
+    director: normalizeDirector(movie.director),
+    starring: normalizeCast(movie.cast),
+    release_date: new Date(movie.releasedate),
+    vod_vod_categories: [categoryId]
+  };
+}
+
 function normalizeImdb(source, categoryId = 1) {
-  const vodId = Number(source.id.replace('tt', ''));
+  const vodId = Number(source.imdbID.replace('tt', ''));
   return {
     ...defaultMovieTemplate,
     id: vodId,
-    imdb_id: source.id || '',
+    imdb_id: source.imdbID || '',
     title: source.title || '',
     original_title: source.originalTitle || '',
-    description: source.story ? source.story.slice(0, 990) : '',
+    description: source.plot ? source.plot.slice(0, 990) : '',
     icon_url: source.poster || '',
     image_url: source.poster || '',
-    rate: source.rating || 1,
-    vote_average: source.rating || 5,
+    rate: source.imdbRating || 1,
+    vote_average: source.imdbRating || 5,
     duration: timeToSeconds(source.runtime) || 0,
     director: normalizeDirector(source.director),
     starring: normalizeCast(source.stars),
-    release_date: new Date(source.year),
+    release_date: new Date(source.release),
     vod_vod_categories: [categoryId]
   };
 }
@@ -145,7 +177,9 @@ function normalizeTmdb(source, categoryId = 1) {
 }
 
 export function normalizeMovieInformation(source, categoryId) {
-  return isImdb(source)
+  return isXtream(source)
+    ? normalizeXtream(source, categoryId)
+    : isImdb(source)
     ? normalizeImdb(source, categoryId)
     : normalizeTmdb(source, categoryId);
 }

@@ -2,6 +2,7 @@ version: '3'
 
 services:
   cron:
+    restart: always
     build: .
     env_file: .env
     command: crond -f -l 8

@@ -9,24 +9,30 @@ class Logger {
       this.info = this.log;
       this.warn = this.log;
     } else {
-      this.log = (message) => process.stdout.write(message + '\n');
+      this.log = (message, bar) => {
+        if (bar?.curr <= bar?.total) {
+          bar.interrupt(message);
+        } else {
+          process.stdout.write(message + '\n');
+        }
+      };
     }
   }
 
-  success(message) {
-    this.log(chalk.greenBright(`✔ ${message}`));
+  success(message, bar) {
+    this.log(chalk.greenBright(`✔ ${message}`), bar);
   }
 
-  error(message) {
-    this.log(chalk.red(`✖ ${message}`));
+  error(message, bar) {
+    this.log(chalk.red(`✖ ${message}`), bar);
   }
 
-  info(message) {
-    this.log(`ℹ ${message}`);
+  info(message, bar) {
+    this.log(`ℹ ${message}`, bar);
   }
 
-  warn(message) {
-    this.log(chalk.yellow(`⚠ ${message}`));
+  warn(message, bar) {
+    this.log(chalk.yellow(`⚠ ${message}`), bar);
   }
 }
 

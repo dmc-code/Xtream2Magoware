@@ -23,6 +23,7 @@ class App {
     this.processor = new MagowareProcessor(
       this.redis,
       this.options.magoware,
+      this.options.xtream,
       this.options.unattended
     );
     this.onState = this._onState.bind(this);
