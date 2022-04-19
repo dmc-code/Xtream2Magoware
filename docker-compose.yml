@@ -7,7 +7,7 @@ services:
     env_file: .env
     command: crond -f -l 8
     volumes:
-      - ./cron/6hours:/etc/periodic/6hours/:ro
+      - ./cron/2hours:/etc/periodic/2hours/:ro
     depends_on:
       - cache
 

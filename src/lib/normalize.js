@@ -52,7 +52,7 @@ const defaultMovieTemplate = {
   revenue: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
-  package_vods: [3, 4],
+  package_vods: process.env.PACKAGE_VODS?.split(',') || [3, 4],
   vod_subtitles: [{ value: 0, label: 'No default subtitles', selected: true }],
   vod_streams: []
 };
@@ -229,7 +229,7 @@ export function normalizeShowInformation(source, categoryId) {
     budget: 0,
     company_id: 1,
     tv_series_categories: [categoryId],
-    tv_series_packages: [3, 4]
+    tv_series_packages: process.env.PACKAGE_VODS?.split(',') || [3, 4]
   };
 }
 
