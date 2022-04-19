@@ -113,7 +113,9 @@ export default class MagowareClient {
     const foundMatch = fullList.find((magowareCategory) => {
       return (
         magowareCategory.name.trim().toLowerCase() ===
-        category.name.trim().toLowerCase()
+          category.name.trim().toLowerCase() ||
+        magowareCategory.name.trim().toLowerCase().replace(/&amp;/g, '&') ===
+          category.name.trim().toLowerCase().replace(/&amp;/g, '&')
       );
     });
 
@@ -217,8 +219,19 @@ export default class MagowareClient {
       }
     );
 
-    if (Array.isArray(body) && body.length > 0 && body[0].title === name) {
-      return body[0];
+    if (Array.isArray(body) && body.length > 0) {
+      let result = null;
+
+      body.some((searchResult) => {
+        if (searchResult.title.toLowerCase() === name.toLowerCase()) {
+          result = searchResult;
+          return true;
+        }
+
+        return false;
+      });
+
+      return result;
     }
 
     return null;
@@ -237,8 +250,19 @@ export default class MagowareClient {
         }
       );
 
-      if (Array.isArray(body) && body.length > 0 && body[0].title === name) {
-        return body[0];
+      if (Array.isArray(body) && body.length > 0) {
+        let result = null;
+
+        body.some((searchResult) => {
+          if (searchResult.title.toLowerCase() === name.toLowerCase()) {
+            result = searchResult;
+            return true;
+          }
+
+          return false;
+        });
+
+        return result;
       }
 
       return false;

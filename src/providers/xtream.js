@@ -146,16 +146,16 @@ export default class XtreamProvider extends Provider {
 
     for (const season of seasons) {
       const cachedCopy = await this.redis.exists(`season:${season.id}`);
-      if (cachedCopy) continue;
-
-      this.redis.setnx(
-        `season:${season.id}:new`,
-        JSON.stringify({
-          xtream: season,
-          imported: false,
-          showId: `show:${showId}`
-        })
-      );
+      if (!cachedCopy) {
+        this.redis.setnx(
+          `season:${season.id}:new`,
+          JSON.stringify({
+            xtream: season,
+            imported: false,
+            showId: `show:${showId}`
+          })
+        );
+      }
 
       let seasonEpisodesReference = null;
       // Xtream codes returns different types, sometimes it's an array of episodes,
@@ -310,6 +310,11 @@ export default class XtreamProvider extends Provider {
           })
         );
       }
+
+      //
+      showInfo = await limiter.schedule(() =>
+        this.client.getSeriesInfo(show.seriesId)
+      );
 
       if (showInfo.seasons) {
         const { numberOfEpisodes, numberOfSeasons } = await this.processSeasons(
