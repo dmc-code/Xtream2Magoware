@@ -311,7 +311,7 @@ export default class MagowareProcessor extends Processor {
         console.log('\n\nShow was null for', show, '\n\n');
         this.seasonErrorCount++;
         this.seasonBar.interrupt(
-          chalk.dim('Skipping season ' + chalk.bold(seasonInformation.name))
+          chalk.dim('Skipping season ' + chalk.bold(key))
         );
         this.seasonBar.tick(1);
         return false;
@@ -366,9 +366,8 @@ export default class MagowareProcessor extends Processor {
     const response = (await this.redis.get(key)) || null;
     const show = response ? JSON.parse(response) : null;
 
-    const { id: categoryId } = await this.getCategory(show.categoryId);
-
     if (show) {
+      const { id: categoryId } = await this.getCategory(show.categoryId);
       const showInformation =
         show.showInformation || (await this.findShow(show.name, categoryId));
 
