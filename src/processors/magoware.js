@@ -308,7 +308,7 @@ export default class MagowareProcessor extends Processor {
       const show = JSON.parse(showResponse);
 
       if (!show) {
-        console.log('\n\nShow was null for', source, '\n\n');
+        console.log('\n\nShow was null for', show, '\n\n');
         this.seasonErrorCount++;
         this.seasonBar.interrupt(
           chalk.dim('Skipping season ' + chalk.bold(seasonInformation.name))
