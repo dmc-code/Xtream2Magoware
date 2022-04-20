@@ -307,6 +307,16 @@ export default class MagowareProcessor extends Processor {
       const showResponse = await this.redis.get(season.showId);
       const show = JSON.parse(showResponse);
 
+      if (!show) {
+        console.log('\n\nShow was null for', source, '\n\n');
+        this.seasonErrorCount++;
+        this.seasonBar.interrupt(
+          chalk.dim('Skipping season ' + chalk.bold(seasonInformation.name))
+        );
+        this.seasonBar.tick(1);
+        return false;
+      }
+
       const seasonInformation =
         season.seasonInformation ||
         normalizeSeasonInformation(season.xtream, show);

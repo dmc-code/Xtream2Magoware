@@ -7,7 +7,7 @@ RUN apk update && apk add openssl bash git python g++ make && rm -rf /var/cache/
 
 # Install node dependencies - done in a separate step so Docker can cache it.
 COPY ./package.json /app/
-
+COPY ./package-lock.json /app/
 RUN npm install
 
 ## Copy project files into the docker image
