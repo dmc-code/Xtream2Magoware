@@ -154,7 +154,7 @@ function normalizeTmdb(source, categoryId = 1) {
     original_title: source.original_title || '',
     description: source.description ? source.description.slice(0, 990) : '',
     tagline: source.tagline || '',
-    homepage: source.homepage || 'N/A',
+    homepage: source.homepage.slice(0, 255) || 'N/A',
     icon_url: source.icon_url
       ? 'https://image.tmdb.org/t/p/w780' + source.icon_url
       : '',
@@ -192,7 +192,7 @@ export function normalizeShowInformation(source, categoryId) {
     price: 0,
     tagline: source.tagline || '',
     release_date: source.first_air_date || new Date(),
-    homepage: source.homepage || 'N/A',
+    homepage: source.homepage.slice(0, 255) || 'N/A',
     id: source.id,
     origin_country: source.origin_country || '',
     original_language: source.original_language || '',

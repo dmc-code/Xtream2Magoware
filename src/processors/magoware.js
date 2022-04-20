@@ -308,7 +308,6 @@ export default class MagowareProcessor extends Processor {
       const show = JSON.parse(showResponse);
 
       if (!show) {
-        console.log('\n\nShow was null for', show, '\n\n');
         this.seasonErrorCount++;
         this.seasonBar.interrupt(
           chalk.dim('Skipping season ' + chalk.bold(key))
@@ -467,7 +466,7 @@ export default class MagowareProcessor extends Processor {
       }
     } else {
       this.episodeBar.interrupt(
-        chalk.dim(`Skipping episode [name] for ${chalk.bold(show.name)}`)
+        chalk.dim(`Skipping episode [name] for ${chalk.bold(key)}`)
       );
       this.episodeErrorCount++;
       this.episodeBar.tick(1);

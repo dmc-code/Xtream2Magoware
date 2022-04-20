@@ -358,6 +358,7 @@ export default class MagowareClient {
       return body;
     } catch (error) {
       const errorMessage = (error.response && error.response.body) || error;
+      console.log(show);
       if (
         errorMessage.message &&
         errorMessage.message.includes('SequelizeUniqueConstraintError')
