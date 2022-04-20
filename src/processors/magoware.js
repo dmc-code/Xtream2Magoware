@@ -25,7 +25,7 @@ const progressMock = { tick: () => {}, interrupt: console.log };
 const IntlFormatter = new Intl.NumberFormat('en-US');
 
 export default class MagowareProcessor extends Processor {
-  constructor(redis, authentication, xtream, unattended) {
+  constructor(redis, authentication, xtream, unattended, tvOnly) {
     const client = new MagowareClient(authentication);
     super(redis, client);
 
@@ -39,6 +39,7 @@ export default class MagowareProcessor extends Processor {
     });
 
     this.unattended = unattended;
+    this.skipMovieImport = tvOnly;
     this.categoryBar = progressMock;
     this.movieBar = progressMock;
     this.showBar = progressMock;
@@ -59,7 +60,7 @@ export default class MagowareProcessor extends Processor {
     });
 
     this.episodeLimiter = new Bottleneck({
-      maxConcurrent: 20
+      maxConcurrent: 10
     });
 
     this.movieErrorCount = 0;
@@ -78,29 +79,6 @@ export default class MagowareProcessor extends Processor {
     this.showKeys = [];
     this.seasonKeys = [];
     this.episodeKeys = [];
-  }
-
-  getKeysMatching(pattern = '*') {
-    return new Promise((resolve, reject) => {
-      const keysArray = [];
-      const stream = this.redis.scanStream({
-        match: pattern,
-        count: 100
-      });
-      stream.on('data', (keys = []) => {
-        for (const key of keys) {
-          if (!keysArray.includes(key)) {
-            keysArray.push(key);
-          }
-        }
-      });
-      stream.on('error', (error) => {
-        reject(error);
-      });
-      stream.on('end', () => {
-        resolve(keysArray);
-      });
-    });
   }
 
   async findShow(name, categoryId) {
@@ -257,7 +235,7 @@ export default class MagowareProcessor extends Processor {
     movie.movieInformation = movieInformation;
     await this.redis.set(key, JSON.stringify(movie));
 
-    if (!movie.imported) {
+    if (movie.imported === false) {
       try {
         if (!movieInformation.duplicated) {
           const magowareMovie = await this.client.importMovie(
@@ -432,8 +410,8 @@ export default class MagowareProcessor extends Processor {
       episode
     } = await this.getAllLocalEpisodeData(key);
 
-    if (category.id && show.imported && season.imported) {
-      if (!episode.imported) {
+    if (category?.id && show?.imported && season?.imported) {
+      if (episode?.imported === false) {
         const episodeInformation =
           episode.episodeInformation ||
           normalizeEpisodeInformation(episode.xtream, season, show);
@@ -465,6 +443,7 @@ export default class MagowareProcessor extends Processor {
             episode.imported = true;
             episode.magoware = { id: episodeInformation.id, duplicated: true };
           } else {
+            this.episodeErrorCount++;
             console.log(error);
           }
         }
@@ -518,7 +497,7 @@ export default class MagowareProcessor extends Processor {
         );
       }
 
-      if (movieKeys.length > 0) {
+      if (movieKeys.length > 0 && !this.skipMovieImport) {
         this.movieBar = new ProgressBar(
           `${barString} | ${chalk.dim('Importing movies to magoware')}`,
           {
@@ -569,7 +548,7 @@ export default class MagowareProcessor extends Processor {
       await Promise.allSettled(categoryProcessing);
     }
 
-    if (movieKeys.length > 0) {
+    if (movieKeys.length > 0 && !this.skipMovieImport) {
       const movieProcessing = movieKeys.map((key) => {
         return this.movieLimiter
           .schedule(this.processMovie.bind(this, key))
@@ -610,8 +589,12 @@ export default class MagowareProcessor extends Processor {
     }
   }
 
-  async process() {
+  async process(tvOnly) {
     super.process();
+
+    if (tvOnly) {
+      this.skipMovieImport = tvOnly;
+    }
 
     this.movieErrorCount = 0;
     this.movieSuccessCount = 0;
@@ -628,11 +611,11 @@ export default class MagowareProcessor extends Processor {
 
     const jobsSpinner = ora('Looking for new items to import').start();
 
-    const categoriesPromise = this.getKeysMatching('category:*:new');
-    const moviePromise = this.getKeysMatching('movie:*:new');
-    const showPromise = this.getKeysMatching('show:*:new');
-    const seasonPromise = this.getKeysMatching('season:*:new');
-    const episodePromise = this.getKeysMatching('episode:*:new');
+    const categoriesPromise = this.redis.getKeysMatching('category:*:new');
+    const moviePromise = this.redis.getKeysMatching('movie:*:new');
+    const showPromise = this.redis.getKeysMatching('show:*:new');
+    const seasonPromise = this.redis.getKeysMatching('season:*:new');
+    const episodePromise = this.redis.getKeysMatching('episode:*:new');
 
     const [
       categoriesKeys,
@@ -656,7 +639,7 @@ export default class MagowareProcessor extends Processor {
 
     jobsSpinner.succeed(
       `Found ${IntlFormatter.format(
-        movieKeys.length +
+        (this.skipMovieImport ? 0 : movieKeys.length) +
           episodeKeys.length +
           categoriesKeys.length +
           showKeys.length +
@@ -667,9 +650,13 @@ export default class MagowareProcessor extends Processor {
     logger.success(
       `${chalk.bold(IntlFormatter.format(categoriesKeys.length))} category jobs`
     );
-    logger.success(
-      `${chalk.bold(IntlFormatter.format(movieKeys.length))} movie jobs`
-    );
+
+    if (!this.skipMovieImport) {
+      logger.success(
+        `${chalk.bold(IntlFormatter.format(movieKeys.length))} movie jobs`
+      );
+    }
+
     logger.success(
       `${chalk.bold(IntlFormatter.format(showKeys.length))} show jobs`
     );

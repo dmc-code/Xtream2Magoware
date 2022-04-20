@@ -239,7 +239,7 @@ export default class XtreamProvider extends Provider {
 
     const bar = new ProgressBar(
       `:bar :current/:total :percent ETA: :eta | ${chalk.dim(
-        'Caching info for :show'
+        'Caching :type info for :show'
       )}`,
       {
         complete: '\u001B[42m \u001B[0m',
@@ -266,6 +266,7 @@ export default class XtreamProvider extends Provider {
       );
       if (cachedCopy) {
         bar.tick({
+          type: 'category',
           show: category.categoryName
         });
         continue;
@@ -281,6 +282,7 @@ export default class XtreamProvider extends Provider {
       );
 
       bar.tick({
+        type: 'category',
         show: category.categoryName
       });
     }
@@ -300,7 +302,7 @@ export default class XtreamProvider extends Provider {
         const showInfoCopy = { ...showInfo };
         delete showInfoCopy.episodes;
         delete showInfoCopy.seasons;
-        this.redis.set(
+        this.redis.setnx(
           `show:${show.seriesId}:new`,
           JSON.stringify({
             xtream: showInfoCopy,
@@ -328,6 +330,7 @@ export default class XtreamProvider extends Provider {
       }
 
       bar.tick({
+        type: 'show',
         show: show.name
       });
     }

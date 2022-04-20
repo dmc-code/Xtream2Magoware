@@ -24,7 +24,8 @@ class App {
       this.redis,
       this.options.magoware,
       this.options.xtream,
-      this.options.unattended
+      this.options.unattended,
+      this.options.tvOnly
     );
     this.onState = this._onState.bind(this);
 
@@ -58,6 +59,13 @@ class App {
         type: 'confirm',
         name: 'import',
         message: 'Do you want to import data to Magoware?',
+        initial: false
+      },
+      {
+        onState: this.onState,
+        type: (previous, answers) => (answers.import ? 'confirm' : null),
+        name: 'tvOnly',
+        message: 'Do you want to skip importing movies to Magoware?',
         initial: false
       }
     ];
@@ -93,12 +101,13 @@ class App {
 
     const magowareResponses = this.options.unattended
       ? {
-          import: true
+          import: true,
+          tvOnly: false
         }
       : await prompts(this.processorQuestions);
 
     if (magowareResponses.import && !this.options.syncOnly) {
-      await this.processor.process();
+      await this.processor.process(magowareResponses.tvOnly);
     } else if (this.options.syncOnly) {
       logger.info('Sync Only flag was passed. Skipping Import.');
     }

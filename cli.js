@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 /* eslint import/no-unassigned-import: 0 */
 
-import dotenv from 'dotenv';
-dotenv.config();
+import 'dotenv/config';
 import meow from 'meow';
 import App from './src/index.js';
 import redisClient from './src/lib/redis-client.js';
@@ -45,8 +44,8 @@ const cli = meow(
   {
     flags: {
       cachebust: {
-        type: 'boolean',
-        default: false
+        type: 'string',
+        default: 'no'
       },
       unattended: {
         type: 'boolean',
@@ -57,6 +56,10 @@ const cli = meow(
         default: false
       },
       importOnly: {
+        type: 'boolean',
+        default: false
+      },
+      tvOnly: {
         type: 'boolean',
         default: false
       }
@@ -135,13 +138,30 @@ process.on('SIGINT', () => {
 });
 
 (async () => {
-  if (cli.flags.cachebust) {
+  if (['', 'all', 'movies', 'tv'].includes(cli.flags.cachebust)) {
     if (cli.flags.importOnly) {
       logger.error(
         'You asked for a cachebust whilst passing the --import-only flag. Cannot run an import without a primed cached, please edit your flags.'
       );
     } else {
-      await redisClient.flushall();
+      if (cli.flags.cachebust === 'movies') {
+        logger.info('Removing Movies from cache');
+        const keys = await redisClient.getKeysMatching('movies*');
+        await redisClient.del(keys.join(' '));
+      } else if (cli.flags.cachebust === 'tv') {
+        logger.info('Gathering keys, this may take a moment');
+        const [a, b, c] = await Promise.all([
+          redisClient.getKeysMatching('episode*'),
+          redisClient.getKeysMatching('season*'),
+          redisClient.getKeysMatching('show*')
+        ]);
+        const keys = [...a, ...b, ...c];
+        logger.info('Removing TV Shows, Seasons & Episodes from cache');
+        await redisClient.del(keys);
+      } else {
+        await redisClient.flushall();
+      }
+
       logger.success('Redis Cache Flushed');
     }
 

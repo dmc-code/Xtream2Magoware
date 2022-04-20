@@ -47,6 +47,29 @@ function connectToRedis() {
     throw error;
   }
 
+  client.getKeysMatching = (pattern = '*') => {
+    return new Promise((resolve, reject) => {
+      const keysArray = [];
+      const stream = client.scanStream({
+        match: pattern,
+        count: 100
+      });
+      stream.on('data', (keys = []) => {
+        for (const key of keys) {
+          if (!keysArray.includes(key)) {
+            keysArray.push(key);
+          }
+        }
+      });
+      stream.on('error', (error) => {
+        reject(error);
+      });
+      stream.on('end', () => {
+        resolve(keysArray);
+      });
+    });
+  };
+
   return client;
 }
 

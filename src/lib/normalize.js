@@ -234,8 +234,12 @@ export function normalizeShowInformation(source, categoryId) {
 }
 
 export function normalizeSeasonInformation(source, show) {
+  if (!show) {
+    console.log('Show was null for', source);
+  }
+
   return {
-    title: `${show.name} ${source.name}`,
+    title: `${show?.name} ${source.name}`,
     imdb_id: '',
     tv_show_id: show.magoware.id,
     season_number: source.seasonNumber || 0,

@@ -267,7 +267,7 @@ export default class MagowareClient {
 
       return false;
     } catch (error) {
-      if (error.response.statusCode === 404) {
+      if (error.response?.statusCode === 404) {
         return false;
       }
     }
@@ -276,7 +276,7 @@ export default class MagowareClient {
   async importEpisode(episode, streamUrl, show) {
     const existingEpisode = await this.findEpisode(episode.title, show.name);
     if (existingEpisode) {
-      return existingEpisode;
+      throw new AlreadyExistsError(episode);
     }
 
     if (episode.icon_url.startsWith('http')) {
